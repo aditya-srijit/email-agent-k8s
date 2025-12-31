@@ -57,6 +57,23 @@ async def health_check():
         }
     )
 
+@app.get("/metrics")
+async def metrics():
+    """
+    Metrics endpoint.
+    
+    Returns:
+        JSON with metrics data
+    """
+    return JSONResponse(
+        content={
+            "status": "healthy",
+            "timestamp": datetime.utcnow().isoformat(),
+            "version": "0.1.0",
+            "service": "email-agent"
+        }
+    )   
+
 
 @app.websocket("/agent")
 async def websocket_endpoint(websocket: WebSocket):
