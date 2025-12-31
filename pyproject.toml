@@ -1,0 +1,16 @@
+[project]
+name = "email-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain>=1.2.0",
+    "langchain-openai>=1.1.5",
+    "langgraph>=1.0.5",
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "websockets>=12.0",
+    "python-dotenv>=1.0.0",
+    "aiohttp>=3.13.2",
+]

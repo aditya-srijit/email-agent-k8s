@@ -1,0 +1,23 @@
+# Production environment values
+
+replicaCount: 3
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 60
+
+env:
+  LOG_LEVEL: "WARNING"
+
+service:
+  type: LoadBalancer

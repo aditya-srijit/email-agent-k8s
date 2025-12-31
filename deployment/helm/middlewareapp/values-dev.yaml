@@ -1,0 +1,17 @@
+# Development environment values
+
+replicaCount: 1
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "250m"
+
+env:
+  LOG_LEVEL: "DEBUG"
+
+service:
+  type: NodePort

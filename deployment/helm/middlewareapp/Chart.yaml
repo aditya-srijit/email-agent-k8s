@@ -1,0 +1,12 @@
+apiVersion: v2
+name: middlewareapp
+description: A Helm chart for Email Agent API
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - email-agent
+  - langgraph
+  - fastapi
+maintainers:
+  - name: Email Agent Team

@@ -1,0 +1,34 @@
+# Docker Compose for local development and testing
+services:
+  email-agent:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    image: middlewareapp:latest
+    container_name: email-agent-api
+    ports:
+      - "8000:8000"
+    environment:
+      - LLM_BASE_URL=${LLM_BASE_URL:-http://192.168.1.55:1234/v1/}
+      - LLM_API_KEY=${LLM_API_KEY:-sk-dummy}
+      - LLM_MODEL_NAME=${LLM_MODEL_NAME:-qwen/qwen3-32}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
+      - PORT=8000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      # Mount code for development (comment out for production)
+      - ../email_agent:/app/email_agent
+      - ../api.py:/app/api.py
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - agent-network
+
+networks:
+  agent-network:
+    driver: bridge

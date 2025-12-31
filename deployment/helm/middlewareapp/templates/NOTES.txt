@@ -1,0 +1,21 @@
+1. Get the application URL by running these commands:
+{{- if eq .Values.service.type "NodePort" }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Values.namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "middlewareapp.fullname" . }}-service)
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Values.namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if eq .Values.service.type "LoadBalancer" }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Values.namespace }} svc -w {{ include "middlewareapp.fullname" . }}-service'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Values.namespace }} {{ include "middlewareapp.fullname" . }}-service --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if eq .Values.service.type "ClusterIP" }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Values.namespace }} -l "app.kubernetes.io/name={{ include "middlewareapp.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  echo "Visit http://127.0.0.1:8000 to use your application"
+  kubectl --namespace {{ .Values.namespace }} port-forward $POD_NAME 8000:{{ .Values.service.targetPort }}
+{{- end }}
+
+2. Test the health endpoint:
+  curl http://<SERVICE_URL>/health
+
+3. For Minikube, you can also use:
+  minikube service {{ include "middlewareapp.fullname" . }}-service -n {{ .Values.namespace }}

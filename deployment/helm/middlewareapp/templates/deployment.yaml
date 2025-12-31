@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "middlewareapp.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "middlewareapp.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "middlewareapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "middlewareapp.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        env:
+        - name: LLM_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "middlewareapp.fullname" . }}-config
+              key: LLM_BASE_URL
+        - name: LLM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "middlewareapp.fullname" . }}-secret
+              key: LLM_API_KEY
+        - name: LLM_MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "middlewareapp.fullname" . }}-config
+              key: LLM_MODEL_NAME
+        - name: LLM_TEMPERATURE
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "middlewareapp.fullname" . }}-config
+              key: LLM_TEMPERATURE
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "middlewareapp.fullname" . }}-config
+              key: PORT
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "middlewareapp.fullname" . }}-config
+              key: LOG_LEVEL
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 10 }}
+      restartPolicy: Always

@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-agent
+  namespace: middlewareapp
+  labels:
+    app: email-agent
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: email-agent
+  template:
+    metadata:
+      labels:
+        app: email-agent
+        version: v1
+    spec:
+      containers:
+      - name: email-agent
+        image: middlewareapp:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: LLM_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: LLM_BASE_URL
+        - name: LLM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: email-agent-secret
+              key: LLM_API_KEY
+        - name: LLM_MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: LLM_MODEL_NAME
+        - name: LLM_TEMPERATURE
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: LLM_TEMPERATURE
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: PORT
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: LOG_LEVEL
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      restartPolicy: Always

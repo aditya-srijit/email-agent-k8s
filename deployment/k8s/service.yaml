@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-agent-service
+  namespace: middlewareapp
+  labels:
+    app: email-agent
+spec:
+  type: LoadBalancer
+  selector:
+    app: email-agent
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8000
+    targetPort: 8000
+  sessionAffinity: None
