@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: middlewareapp
+  labels:
+    name: middlewareapp
+    environment: development
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: email-agent-secret
+  namespace: middlewareapp
+type: Opaque
+data:
+  # Base64 encoded value of "sk-dummy"
+  # To encode: echo -n "sk-dummy" | base64
+  LLM_API_KEY: c2stZHVtbXk=
+  
+# To create your own secret:
+# kubectl create secret generic email-agent-secret \
+#   --from-literal=LLM_API_KEY=your-api-key \
+#   -n middlewareapp
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-agent-config
+  namespace: middlewareapp
+data:
+  LLM_BASE_URL: "http://192.168.1.55:1234/v1/"
+  LLM_MODEL_NAME: "qwen/qwen3-32"
+  LLM_TEMPERATURE: "0.7"
+  PORT: "8000"
+  LOG_LEVEL: "INFO"
+  SENDER_EMAIL: "agent@middlewareapp.com"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-agent-service
+  namespace: middlewareapp
+  labels:
+    app: email-agent
+spec:
+  type: LoadBalancer
+  selector:
+    app: email-agent
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8000
+    targetPort: 8000
+  sessionAffinity: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-agent
+  namespace: middlewareapp
+  labels:
+    app: email-agent
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: email-agent
+  template:
+    metadata:
+      labels:
+        app: email-agent
+        version: v1
+    spec:
+      containers:
+      - name: email-agent
+        image: middlewareapp:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: LLM_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: LLM_BASE_URL
+        - name: LLM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: email-agent-secret
+              key: LLM_API_KEY
+        - name: LLM_MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: LLM_MODEL_NAME
+        - name: LLM_TEMPERATURE
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: LLM_TEMPERATURE
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: PORT
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: email-agent-config
+              key: LOG_LEVEL
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      restartPolicy: Always
