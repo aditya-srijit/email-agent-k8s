@@ -1,4 +1,4 @@
-# Middleware App - Email Agent
+# Agentic App - Email Agent
 
 This project implements an intelligent Email Agent using LangGraph and FastAPI. It processes emails, classifies them, and can draft responses with a human-in-the-loop workflow.
 
@@ -62,3 +62,4 @@ python main.py
 - `main.py`: Standalone script for testing agent logic.
 - `email_agent/`: Core agent implementation (LangGraph).
 - `deployment/`: Kubernetes and Docker configurations.
+
