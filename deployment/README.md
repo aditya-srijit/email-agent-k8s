@@ -78,7 +78,7 @@ LOG_LEVEL=INFO
 ## Architecture
 
 ```
-middlewareapp/
+email-agent-k8s/
 ├── api.py                 # FastAPI application
 ├── email_agent/          # LangGraph agent code
 ├── deployment/
@@ -169,14 +169,4 @@ The application uses `InMemorySaver` for state management. This means:
 - State is lost on restart
 - Multiple replicas don't share state
 - Consider using Redis or PostgreSQL for production
-
-### Security
-- Never commit `.env` files with real credentials
-- Use Kubernetes Secrets for sensitive data
-- Update the API key in production
-
-## Troubleshooting
-
-See individual READMEs for detailed troubleshooting:
-- [Kubernetes Troubleshooting](./k8s/README.md#troubleshooting)
-- [Helm Troubleshooting](./helm/middlewareapp/README.md#troubleshooting)
+- 
