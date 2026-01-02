@@ -103,9 +103,6 @@ email-agent-k8s/
 
 ## Scaling
 
-### Docker Compose
-Not recommended for scaling - use Kubernetes instead.
-
 ### Kubernetes
 ```bash
 kubectl scale deployment/email-agent -n middlewareapp --replicas=5
@@ -169,4 +166,4 @@ The application uses `InMemorySaver` for state management. This means:
 - State is lost on restart
 - Multiple replicas don't share state
 - Consider using Redis or PostgreSQL for production
-- 
+  
