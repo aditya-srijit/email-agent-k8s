@@ -165,5 +165,6 @@ The LLM endpoint is configured via `LLM_BASE_URL`. Ensure this is accessible fro
 The application uses `InMemorySaver` for state management. This means:
 - State is lost on restart
 - Multiple replicas don't share state
-- Consider using Redis or PostgreSQL for production
+- Consider using Redis/PostgreSQL/any other databases for production
   
+
