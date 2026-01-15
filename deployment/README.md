@@ -15,7 +15,7 @@ This directory contains all deployment configurations for the Email Agent API.
 
 ```bash
 # Build
-docker build -t middlewareapp:latest -f deployment/Dockerfile .
+docker build -t middlewareapp:latest -f deployment/Dockerfile.
 
 # Run
 docker run -p 8000:8000 --env-file .env middlewareapp:latest
@@ -167,4 +167,5 @@ The application uses `InMemorySaver` for state management. This means:
 - Multiple replicas don't share state
 - Consider using Redis/PostgreSQL/any other databases for production
   
+
 
